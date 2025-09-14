@@ -1,0 +1,13 @@
+1. What makes a CSV Parser correct can definitely be up to interpretaion and heavily depend on what 
+the customer would want it to do, but generally it should be validating every row that it parses to 
+make sure it fits a certain schema as we saw a clear test of why that was an issue. It also needs 
+clear error handling to alert the user of any errors and to make sure it handles all edge cases correctly.
+
+2. This could be very helpful as it would allow me to test the countless different random CSVs that
+are created that will test for edge cases I probably couldn't have thought of. Even if I spent an hour
+thinking of edge cases, using a program that randomly generates CSVs would be much more efficient in finding
+flaws in the program.
+
+3. I didn't encounter many bugs which makes sense as it wasn't a coding heavy assignment, but I 
+definitely realized how much thinking and reflecting had to go into this before even writing a single
+new line of code (not including tests).

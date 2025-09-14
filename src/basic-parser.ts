@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as readline from "readline";
+import { z } from "zod";
 
 /**
  * This is a JSDoc comment. Similar to JavaDoc, it documents a public-facing
@@ -14,7 +15,7 @@ import * as readline from "readline";
  * @param path The path to the file being loaded.
  * @returns a "promise" to produce a 2-d array of cell values
  */
-export async function parseCSV(path: string): Promise<string[][]> {
+export async function parseCSV<T>(path: string, schema?: z.ZodType<T>): Promise<T[] | string[][]> {
   // This initial block of code reads from a file in Node.js. The "rl"
   // value can be iterated over in a "for" loop. 
   const fileStream = fs.createReadStream(path);
@@ -33,5 +34,31 @@ export async function parseCSV(path: string): Promise<string[][]> {
     const values = line.split(",").map((v) => v.trim());
     result.push(values)
   }
-  return result
+
+  if (!schema) {
+    return result
+  }
+
+  const typed: T[] = [];
+  const validationFail: Array<{ row: number; raw: string[]; issues: string }> = [];
+
+  for (let i = 1; i < result.length; i++) {
+    const row = result[i];
+    const parsed = schema.safeParse(row);
+    if (parsed.success) {
+      typed.push(parsed.data);
+    } else {
+      validationFail.push({row: i + 1, raw: row, issues: parsed.error.message,
+      });
+    }
+  }
+
+  if (validationFail.length > 0) {
+    const error = new Error("CSV schema validation failed");
+    (error as any).details = validationFail;
+    throw error;
+  }
+
+  return typed;
+  
 }
